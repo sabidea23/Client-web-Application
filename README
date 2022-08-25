@@ -1,0 +1,73 @@
+Dinu Andreea Sabina
+322CB
+
+Homework 3 PC - Web Client
+			
+In order to implement this homework, I used the files and functions from
+lab10.
+
+-> request.c contains functions for making the request. For functions 
+compute_get_request and compute_post_request, I added as parameter the JWT
+token, which I concatenated in the request if it is not empty. 
+In compute_post_request, I printed the host,
+content type, followed by the actual content. The content comes in the body_data
+array of strings, and they are parsed using json_object_set_string from parson
+library, then the data is transformed into a serialized string using
+json_serialize_to_string_pretty and copied into the body_data_buffer. Then, the
+content length is printed, the cookies and jwt_tokens if there are any.
+Function compute_delete_request is used to delete a book, which prints a DELETE
+message, the host, the cookies and jwt_tokens if there are any. 
+
+-> client.c file contains auxiliary functions for all the instructions
+read from STDIN.
+
+->access_account could receive a receive or login intruction and 
+compute a POST request with the data (username and password) of the user
+read from STDIN. Then, it compose the request with the coresponding URL,
+get a reply and print the response.
+
+->login_command is used in order to make the login, compute
+a POST request and print the response using the last function, then it extract 
+and return the cookie from the response. If it finds the cookie, it sets the
+already_logged variables to 1, to know that the user is logged in and is 
+able to work with the library.
+
+->extract_jwt_token function extract a JWT token from a response by using 
+parson library. It parses the last line into a json value,
+then it gets the json object and it converts it to string and it copies it
+into the jwt_token. 
+
+->enter_library compute a GET request with the cookie received as parameter, if the 
+user is already logged, and return the JWT token. If no user is connected, make
+the request without the cookie, else allocate an array of cookies and copies the 
+cookie into the first element. Then compose the request, send it to the server,
+get a response and print it.
+
+->get_books function is used when the get_books command is received and calls
+compute_get_request with the given jwt token. If the jwt_token is null, the
+function is called without it. Else, an array of jwt_tokens is allocated and the
+token is copied to the first element, then the function is called with it.
+Then, sends the message  to the server, receives a response and print it.
+
+->book_operation receives either a get_book or delete_book command and
+calls the suitable function for the given command. It reads the id and adds it to
+the url. If the jwt token is null, it calls either compute_get_request or
+compute_delete_request without it. Else, an array or token is allocated and the
+token is copied to the first element and one of the functions is called, according
+to the command given. Then, it prints the message, sends it to server, receives
+a response and print it.
+
+->add_book function is used when the user wants to add a new book in the library. If
+the JWT token is empty, compute a POST request without it. Else, I collected the information
+about the new book from STDIN, allocate and array of tokens and copy the JWT token 
+into the first element and then compute the request. Then I send it to the server, got 
+a response and print it.
+
+->logout_command is used when a user wants to logout. If the user is not logged, make a GET 
+request without a cookie, else allocate an array of cookie and copies the first element, 
+then compute a request. Finally, send it to the server, get a reply and print it.
+
+-> In the main function, I read intructions from STDIN, and open a new coonnection
+everytime I receive a command. For every intruction, I call the suitable function, and 
+check if the user is logged, then close the socket. At the end, after the istruction 
+"exit", I fred all the memory allocated.
